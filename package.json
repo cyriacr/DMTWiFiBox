@@ -7,6 +7,8 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "compile": "dexon-truffle compile",
+    "piservice:dev": "node nodejs/box-service.js development",
+    "piservice:testnet": "node nodejs/box-service.js dexonTestnet",
     "migrate:dev": "dexon-truffle migrate --network=development --reset",
     "migrate:dev:only": "dexon-truffle migrate --network=development",
     "migrate:testnet": "dexon-truffle migrate --network=dexonTestnet --reset",
