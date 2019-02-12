@@ -61,16 +61,16 @@ module.exports = {
       }
       switch (event.event) {
         case 'online':
-          // event online(address from, address pi, uint ipaddr, uint maxtime);
+          // event online(address indexed from, address indexed pi, uint ipaddr, uint maxtime);
           // only handle events related with current Pi
-          if (pi !== this.pi.addr) break
+          if (event.returnValues.pi !== this.pi.addr) break
           // execute shell to change iptables rules
           console.log('online', event.returnValues)
           break
         case 'offline':
-          // event offline(address from, address pi, uint starttm, uint endtm, uint creditused);
+          // event offline(address indexed from, address indexed owner, address pi, uint starttm, uint endtm, uint creditused);
           // only handle events related with current Pi
-          if (pi !== this.pi.addr) break
+          if (event.returnValues.pi !== this.pi.addr) break
           console.log('offline', event.returnValues)
           // ignore this message in Pi
           break
@@ -83,7 +83,7 @@ module.exports = {
   // expose offline function to Pi
   offline: async function (useraddr) {
     try {
-      await this.contractWrite.methods.useroffline(useraddr).send({ from: this.pi.addr, gas: this.gasFee })
+      await this.contractWrite.methods.userOffline(useraddr).send({ from: this.pi.addr, gas: this.gasFee })
     } catch (error) {
       // error.reason now populated with an REVERT reason
       console.log('Failure reason', error.reason)
