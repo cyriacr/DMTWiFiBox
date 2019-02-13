@@ -1,36 +1,27 @@
 <template>
   <v-content style="height:calc(100vh - 80px)">
     <v-card flat>
-      <v-card-text v-if="logined">
-        <v-btn @click="registerUser">Register</v-btn>
-        <v-btn @click="listUsers">List Users</v-btn>
-      </v-card-text>
-      <v-card-text v-if="logined">
-        <v-layout>
-          <v-flex  xs14 sm6 md3>
+      <v-card-text>
+          <v-layout>
+          <v-flex  xs12 sm6 md3>
             <v-layout>
               <v-flex xs4>
-                <v-btn @click="deposit">Deposit</v-btn>
-              </v-flex>
-              <v-flex xs4>
-                <v-btn @click="query">Query</v-btn>
+                <v-btn @click="registerDevice">Register</v-btn>
               </v-flex>
               <v-flex xs6>
-                <v-chip label outline color="white">{{ amountToken }}</v-chip>
+                <v-text-field
+                  label="Device Name"
+                  placeholder=""
+                  outline
+                ></v-text-field>
               </v-flex>
             </v-layout>
           </v-flex>
         </v-layout>
-      </v-card-text>
-      <v-card-text v-if="!logined">
-        <v-btn @click="login">{{ $t('home.login') }}</v-btn>
-      </v-card-text>
-      <v-card-text v-if="logined">
-        address: {{ userdata.addr.substring(0,6) + "..." + userdata.addr.substring(userdata.addr.length - 6) }}<br>
-        balance: {{ userdata.balance}}<br>
-        <v-btn @click="online">send online signal</v-btn>
+        <v-btn @click="getUserDevices">List Devices</v-btn>
       </v-card-text>
     </v-card>
+    
     <v-dialog
       v-model="dialog"
       persistent
@@ -96,8 +87,7 @@ export default {
       alertdialog: false,
       alerttext: '',
       piaddr: null,
-      ipaddr: null,
-      amountToken: null
+      ipaddr: null
     }
   },
   mounted () {
@@ -107,38 +97,12 @@ export default {
   methods: {
     getPiInfo () {
       // how to get current ip address and pi wallet address?
-      this.piaddr = "0x1d8D586164fB77d08b5A044D7850c29a426564dB"; // test only
-      this.ipaddr = "111"; // test only
+
     },
     online: function () {
       this.getPiInfo()
-      this.dmtContractWrite.methods.userOnline(this.piaddr, this.ipaddr)
-        .send({ from: this.userdata.addr, gas: this.gasFee })
-    },
-    registerUser: function () {
-      console.log('-----------------------------------');
-      console.log('   user registration');
-      console.log('-----------------------------------');
-      this.dmtContractWrite.methods.registerUser()
-        .send({ from: this.userdata.addr, gas: this.gasFee })
-    },
-    listUsers: function () {
-      this.dmtContractRead.methods.users().call(function(err, res){
-        //do something with res here
-        console.log(res); //for example
-      });
-    },
-    deposit: function () {
-      console.log('-----------------------------------');
-      console.log('   deposit');
-      console.log(this.userdata.addr);
-      console.log('-----------------------------------');
-      
-      this.dmtContractWrite.methods.increaseCredit(this.userdata.addr)
-        .send({ from: this.userdata.addr, gas: this.gasFee })
-    },
-    query: function () {
-      this.dmtContractRead.methods.getUserCredit(this.userdata.addr).call().then(console.log);
+      this.dmtContractWrite.methods.useronline(this.piaddr, this.ipaddr)
+        .send({ from: this.userdata.myaddr, gas: this.gasFee })
     },
     getWSHandler: async function () {
       let WS_PROVIDER = (

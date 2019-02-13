@@ -20,7 +20,7 @@ contract DMTWiFiBox {
         address pi;
         address[] devices;
     }
-    mapping(address => userdata) users;
+    mapping(address => userdata) public users;
 
     event online(address indexed from, address indexed pi, uint ipaddr, uint maxtime);
     event offline(address indexed from, address indexed owner, address pi, uint starttm, uint endtm, uint creditused);
