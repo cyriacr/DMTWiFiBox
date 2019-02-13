@@ -24,6 +24,7 @@ contract DMTWiFiBox {
 
     event online(address indexed from, address indexed pi, uint ipaddr, uint maxtime);
     event offline(address indexed from, address indexed owner, address pi, uint starttm, uint endtm, uint creditused);
+    event deposit(address indexed from, address indexed to, uint credit);
 
     function registerUser() public returns (bool) {
         require(users[msg.sender].addr != address(0x0), "Already registered");
@@ -76,10 +77,11 @@ contract DMTWiFiBox {
         return (piaddrs, pinames);
     }
 
-    function buyToken(address to) public payable {
+    function increaseCredit(address to) public payable {
         require(users[to].addr == to, "Not registered user");
         uint credit = msg.value * ratio / 10**18;
         users[to].credit = users[to].credit.add(credit);
+        emit deposit(msg.sender,to, credit);
     }
 
     function getUserCredit(address addr) public view returns (uint) {
