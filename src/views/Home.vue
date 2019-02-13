@@ -117,7 +117,8 @@ export default {
     },
     registerUser: function () {
       console.log('-----------------------------------');
-      console.log('   user registration');
+      console.log('user registration');
+      console.log(this.userdata.addr);
       console.log('-----------------------------------');
       this.dmtContractWrite.methods.registerUser()
         .send({ from: this.userdata.addr, gas: this.gasFee })
@@ -130,7 +131,7 @@ export default {
     },
     deposit: function () {
       console.log('-----------------------------------');
-      console.log('   deposit');
+      console.log('deposit');
       console.log(this.userdata.addr);
       console.log('-----------------------------------');
       

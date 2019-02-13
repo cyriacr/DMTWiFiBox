@@ -27,7 +27,7 @@ contract DMTWiFiBox {
     event deposit(address indexed from, address indexed to, uint credit);
 
     function registerUser() public returns (bool) {
-        require(users[msg.sender].addr != address(0x0), "Already registered");
+        // require(users[msg.sender].addr != address(0x0), "Already registered");
         users[msg.sender].addr = msg.sender;
         return true;
     }
