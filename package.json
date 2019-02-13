@@ -10,9 +10,9 @@
     "piservice:dev": "node nodejs/box-service.js development",
     "piservice:testnet": "node nodejs/box-service.js dexonTestnet",
     "migrate:dev": "dexon-truffle migrate --network=development --reset",
-    "migrate:dev:only": "dexon-truffle migrate --network=development",
+    "migrate:dev:upgrade": "dexon-truffle migrate --network=development",
     "migrate:testnet": "dexon-truffle migrate --network=dexonTestnet --reset",
-    "migrate:testnet:only": "dexon-truffle migrate --network=dexonTestnet",
+    "migrate:testnet:upgrade": "dexon-truffle migrate --network=dexonTestnet",
     "rpc": "node ./run-ganache.js"
   },
   "dependencies": {
