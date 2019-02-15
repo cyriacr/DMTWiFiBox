@@ -3,20 +3,33 @@
     <v-card flat>
       <v-card-text v-if="logined">
         <v-btn @click="registerUser">Register</v-btn>
-        <v-btn @click="listUsers">List Users</v-btn>
       </v-card-text>
       <v-card-text v-if="logined">
         <v-layout>
-          <v-flex  xs14 sm6 md3>
+          <v-flex xs14 sm6 md3>
             <v-layout>
               <v-flex xs4>
                 <v-btn @click="deposit">Deposit</v-btn>
               </v-flex>
+              <v-flex xs6>
+                <v-text-field
+                  label="Mobile Token"
+                  placeholder=""
+                  outline
+                  v-model="amountDeposit"
+                ></v-text-field>
+              </v-flex>
+            </v-layout>
+          </v-flex>
+        </v-layout>
+        <v-layout>
+          <v-flex xs14 sm6 md3>
+            <v-layout>
               <v-flex xs4>
                 <v-btn @click="query">Query</v-btn>
               </v-flex>
               <v-flex xs6>
-                <v-chip label outline color="white">{{ amountToken }}</v-chip>
+                {{ amountQuery }}
               </v-flex>
             </v-layout>
           </v-flex>
@@ -97,7 +110,8 @@ export default {
       alerttext: '',
       piaddr: null,
       ipaddr: null,
-      amountToken: null
+      amountDeposit: null,
+      amountQuery: ""
     }
   },
   mounted () {
@@ -123,23 +137,34 @@ export default {
       this.dmtContractWrite.methods.registerUser()
         .send({ from: this.userdata.addr, gas: this.gasFee })
     },
-    listUsers: function () {
-      this.dmtContractRead.methods.users().call(function(err, res){
-        //do something with res here
-        console.log(res); //for example
+    getUserData: function () {
+      this.dmtContractRead.methods.users().call(this.walletHandler.accounts[0], function(err, result){
+          if(!err){
+              console.log(result);
+          }else{
+              console.log(err);
+          }
       });
     },
     deposit: function () {
       console.log('-----------------------------------');
       console.log('deposit');
       console.log(this.userdata.addr);
+      console.log(this.amountDeposit);
       console.log('-----------------------------------');
       
+      var etherAmount = this.wsHandler.utils.toBN(this.amountDeposit);
+      var weiValue = this.wsHandler.utils.toWei(etherAmount,'ether');
       this.dmtContractWrite.methods.increaseCredit(this.userdata.addr)
-        .send({ from: this.userdata.addr, gas: this.gasFee })
+        .send({ from: this.userdata.addr, gas: this.gasFee, value: weiValue }, function(err, res){ })
+
+    
     },
     query: function () {
-      this.dmtContractRead.methods.getUserCredit(this.userdata.addr).call().then(console.log);
+      this.dmtContractRead.methods.getUserCredit(this.userdata.addr)
+        .call().then(res=>{
+          console.log(res); 
+          this.amountQuery = res;});
     },
     getWSHandler: async function () {
       let WS_PROVIDER = (

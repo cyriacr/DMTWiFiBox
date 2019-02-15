@@ -1,7 +1,6 @@
 <template>
   <v-content style="height:calc(100vh - 80px)">
     <v-card flat>
-     
        <v-card-text>
           <v-layout>
           <v-flex  xs12 sm6 md3>
@@ -9,10 +8,39 @@
               <v-flex xs4>
                 <v-btn @click="report">Report</v-btn>
               </v-flex>
-             
             </v-layout>
           </v-flex>
         </v-layout>
+        Online Events:
+        <ul>
+        <li v-for="item in onlineEvents" v-bind:value="item.blockHash" :key="item.blockHash">
+            from: {{ item.returnValues[0] }} <br>
+            pi: {{ item.returnValues[1] }} <br> 
+            ipaddr: {{ item.returnValues[2] }} <br> 
+            maxtime: {{ item.returnValues[3] }} <br>  
+          </li>
+        </ul>
+        <hr>
+        Offline Events:
+        <ul>
+        <li v-for="item in offlineEvents" v-bind:value="item.blockHash" :key="item.blockHash">
+            from: {{ item.returnValues[0] }} <br>
+            owner: {{ item.returnValues[1] }} <br> 
+            pi: {{ item.returnValues[2] }} <br> 
+            starttm: {{ item.returnValues[3] }} <br>  
+            endtm: {{ item.returnValues[4] }} <br>
+            creditused: {{ item.returnValues[5] }} <br>
+          </li>
+        </ul>
+        <hr>
+        Deposit Events:
+        <ul>
+        <li v-for="item in depositEvents" v-bind:value="item.blockHash" :key="item.blockHash">
+            from: {{ item.returnValues[0] }} <br>
+            to: {{ item.returnValues[1] }} <br> 
+            credit: {{ item.returnValues[2] }} <br>   
+          </li>
+        </ul>
       </v-card-text>
     </v-card>
     <v-dialog
@@ -80,7 +108,10 @@ export default {
       alertdialog: false,
       alerttext: '',
       piaddr: null,
-      ipaddr: null
+      ipaddr: null,
+      onlineEvents: [],
+      offlineEvents: [],
+      depositEvents: []
     }
   },
   mounted () {
@@ -88,6 +119,46 @@ export default {
     this.dmtContractRead = new this.wsHandler.eth.Contract(this.hsABI, this.hsAddress)
   },
   methods: {
+    report: function () {
+      console.log('-----------------------------------');
+      console.log('report events');
+      console.log('-----------------------------------');
+      
+      const filter = { fromBlock: 0, toBlock: 'latest'}; // filter for your address
+      const events = this.dmtContractRead.events.allEvents(filter); // get all events
+      console.log(events);
+      
+      this.dmtContractRead.getPastEvents(
+        'online',
+        {
+          fromBlock: 0,
+          toBlock: 'latest'
+        }
+      ).then(res=>{
+        this.onlineEvents = res;
+      });
+
+      this.dmtContractRead.getPastEvents(
+        'offline',
+        {
+          fromBlock: 0,
+          toBlock: 'latest'
+        }
+      ).then(res=>{
+        this.offlineEvents = res;
+      });
+      
+      this.dmtContractRead.getPastEvents(
+        'deposit',
+        {
+          fromBlock: 0,
+          toBlock: 'latest'
+        }
+      ).then(res=>{
+        this.depositEvents = res;
+      });
+      
+    },
     getPiInfo () {
       // how to get current ip address and pi wallet address?
 

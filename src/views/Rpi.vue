@@ -1,24 +1,65 @@
 <template>
   <v-content style="height:calc(100vh - 80px)">
     <v-card flat>
-      <v-card-text>
-          <v-layout>
-          <v-flex  xs12 sm6 md3>
+      <v-card-text v-if="!logined">
+        <v-btn @click="login">{{ $t('home.login') }}</v-btn>
+      </v-card-text>
+      <v-card-text v-if="logined">
+        <v-layout>
+          <v-flex xs30 sm6 md3>
             <v-layout>
               <v-flex xs4>
                 <v-btn @click="registerDevice">Register</v-btn>
               </v-flex>
-              <v-flex xs6>
+              <v-flex xs10>
                 <v-text-field
                   label="Device Name"
                   placeholder=""
                   outline
+                  v-model="devname"
                 ></v-text-field>
               </v-flex>
             </v-layout>
           </v-flex>
         </v-layout>
-        <v-btn @click="getUserDevices">List Devices</v-btn>
+      </v-card-text>
+      <v-card-text v-if="logined">
+         <v-layout>
+          <v-flex  xs12 sm6 md3>
+            <v-layout>
+              <v-flex xs5>
+                <v-btn @click="getUserDevices">List Devices</v-btn>
+              </v-flex>
+              <v-flex xs6>
+
+              </v-flex>
+            </v-layout>
+          </v-flex>
+        </v-layout>
+        <ul>
+          <li v-for="item in userDevices" v-bind:value="item.address" :key="item.address">
+            {{ item.address }} - {{ item.bytes32 }}
+          </li>
+        </ul>
+      </v-card-text>
+      <v-card-text v-if="logined">
+         <v-layout>
+          <v-flex  xs12 sm6 md3>
+            <v-layout>
+              <v-flex xs6>
+                <v-btn @click="offline">Set User Offline</v-btn>
+              </v-flex>
+              <v-flex xs6>
+                <v-text-field
+                  label="User Address"
+                  placeholder=""
+                  outline
+                  v-model="offlineUserAddr"
+                ></v-text-field>
+              </v-flex>
+            </v-layout>
+          </v-flex>
+        </v-layout>
       </v-card-text>
     </v-card>
     
@@ -87,7 +128,10 @@ export default {
       alertdialog: false,
       alerttext: '',
       piaddr: null,
-      ipaddr: null
+      ipaddr: null,
+      devname: "",
+      offlineUserAddr: null,
+      userDevices: []
     }
   },
   mounted () {
@@ -95,6 +139,40 @@ export default {
     this.dmtContractRead = new this.wsHandler.eth.Contract(this.hsABI, this.hsAddress)
   },
   methods: {
+    registerDevice: function () {
+      console.log('-----------------------------------');
+      console.log('registerDevice');
+      console.log(this.devname);
+      console.log('-----------------------------------');
+      console.log(this.wsHandler);
+      console.log(this.dmtContractWrite);
+      this.dmtContractWrite.methods.registerDevice(this.userdata.addr, this.wsHandler.utils.fromAscii(this.devname))
+        .send({ from: this.userdata.addr, gas: this.gasFee })
+    },
+    getUserDevices: function () {
+      console.log('-----------------------------------');
+      console.log('getUserDevices');
+      console.log('-----------------------------------');
+      
+      this.dmtContractRead.methods.getUserDevices()
+        .call().then(res=>{
+          console.log(res[0]); 
+          console.log(res[1]);
+          var i=0;
+          for (i = 0; i < res.length; i++) { 
+            userDevices.push({address:res[0][i], bytes32:res[1][i]});
+          }
+        });
+
+    },
+    offline: function () {
+      console.log('-----------------------------------');
+      console.log('offline');
+      console.log(this.offlineUserAddr);
+      console.log('-----------------------------------');
+      this.dmtContractWrite.methods.userOffline(this.offlineUserAddr)
+        .send({ from: this.userdata.addr, gas: this.gasFee })
+    },
     getPiInfo () {
       // how to get current ip address and pi wallet address?
 

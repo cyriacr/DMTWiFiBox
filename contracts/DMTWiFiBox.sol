@@ -27,7 +27,7 @@ contract DMTWiFiBox {
     event deposit(address indexed from, address indexed to, uint credit);
 
     function registerUser() public returns (bool) {
-        // require(users[msg.sender].addr != address(0x0), "Already registered");
+        // require(users[msg.sender].addr == address(0x0), "Already registered");
         users[msg.sender].addr = msg.sender;
         return true;
     }
@@ -77,7 +77,7 @@ contract DMTWiFiBox {
         return (piaddrs, pinames);
     }
 
-    function increaseCredit(address to) public payable {
+    function increaseCredit(address payable to) public payable {
         require(users[to].addr == to, "Not registered user");
         uint credit = msg.value * ratio / 10**18;
         users[to].credit = users[to].credit.add(credit);
