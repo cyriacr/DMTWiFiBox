@@ -11,7 +11,7 @@ contract DMTWiFiBox {
         bytes32 name;
         address owner;        
     }
-    mapping (address => devinfo) devices;
+    mapping (address => devinfo) public devices;
 
     struct userdata {
         address addr;
@@ -27,13 +27,14 @@ contract DMTWiFiBox {
     event deposit(address indexed from, address indexed to, uint credit);
 
     function registerUser() public returns (bool) {
-        // require(users[msg.sender].addr == address(0x0), "Already registered");
+        require(users[msg.sender].addr == address(0x0), "Already registered");
         users[msg.sender].addr = msg.sender;
         return true;
     }
 
     function registerDevice(address devaddr, bytes32 devname) public returns (bool) {
-        require(devices[devaddr].addr != address(0x0), "Already registered");
+        require(devaddr != address(0x0), "Invalid device address");
+        require(devices[devaddr].addr == address(0x0), "Already registered");
         devices[devaddr].addr = devaddr;
         devices[devaddr].name = devname;
         devices[devaddr].owner = msg.sender;
@@ -52,10 +53,12 @@ contract DMTWiFiBox {
     }
 
     function unregisterDevice(address devaddr) public returns (bool) {
+        require(devaddr != address(0x0), "Invalid device address");
         require(devices[devaddr].addr == devaddr, "Not registered");
         for (uint i = 0; i < users[msg.sender].devices.length; i++) {
             if (users[msg.sender].devices[i] == devaddr) {
                 users[msg.sender].devices[i] = address(0x0);
+                break;
             }
         }
         devices[devaddr].addr = address(0x0);
@@ -78,6 +81,7 @@ contract DMTWiFiBox {
     }
 
     function increaseCredit(address payable to) public payable {
+        require(to != address(0x0), "Invalid address");
         require(users[to].addr == to, "Not registered user");
         uint credit = msg.value * ratio / 10**18;
         users[to].credit = users[to].credit.add(credit);
@@ -85,11 +89,13 @@ contract DMTWiFiBox {
     }
 
     function getUserCredit(address addr) public view returns (uint) {
+        require(addr != address(0x0), "Invalid address");
         require(users[addr].addr == addr, "Not registered user");
         return users[addr].credit;
     }
 
     function userOnline(address pi, uint ipaddr) public {
+        require(pi != address(0x0), "Invalid address");
         require(users[msg.sender].addr == msg.sender, "Not registered user");
         require(users[msg.sender].pi == address(0x0), "Not logoned on other Pi");
         users[msg.sender].pi = pi;
@@ -99,6 +105,7 @@ contract DMTWiFiBox {
     }
 
     function userOffline(address from) public {
+        require(from != address(0x0), "Invalid address");
         require(users[from].pi == msg.sender, "User didn't logoned on this Pi");
         address piowner = devices[msg.sender].owner;
         uint starttm = users[from].start;
