@@ -23,8 +23,9 @@ contract DMTWiFiBox {
     mapping(address => userdata) public users;
 
     event online(address indexed from, address indexed pi, uint ipaddr, uint maxtime);
-    event offline(address indexed from, address indexed owner, address pi, uint starttm, uint endtm, uint creditused);
     event deposit(address indexed from, address indexed to, uint credit);
+    event deduction(address indexed from, address indexed owner, uint starttm, uint endtm, uint creditused);
+    event offline(address indexed from, address pi);
 
     function registerUser() public returns (bool) {
         require(users[msg.sender].addr == address(0x0), "Already registered");
@@ -117,6 +118,7 @@ contract DMTWiFiBox {
             creditused = users[from].credit;
         }
         users[from].credit = users[from].credit.sub(creditused);
-        emit offline(from, piowner, msg.sender, starttm, endtm, creditused);
+        emit offline(from, msg.sender);
+        emit deduction(from, piowner, starttm, endtm, creditused);
     }
 }
