@@ -7,8 +7,8 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "compile": "dexon-truffle compile",
-    "piservice:dev": "node nodejs/box-service.js development",
-    "piservice:testnet": "node nodejs/box-service.js dexonTestnet",
+    "iotservice:dev": "node nodejs/IoTservice.js development",
+    "iotservice:testnet": "node nodejs/IoTservice.js dexonTestnet",
     "migrate:dev": "dexon-truffle migrate --network=development --reset",
     "migrate:dev:upgrade": "dexon-truffle migrate --network=development",
     "migrate:testnet": "dexon-truffle migrate --network=dexonTestnet --reset",
@@ -16,6 +16,9 @@
     "rpc": "node ./run-ganache.js"
   },
   "dependencies": {
+    "express": "^4.16.4",
+    "fs": "0.0.1-security",
+    "ip2long": "0.0.1",
     "register-service-worker": "^1.5.2",
     "vue": "^2.5.21",
     "vue-i18n": "^8.0.0",
