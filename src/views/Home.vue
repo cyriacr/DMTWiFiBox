@@ -78,6 +78,9 @@
 // @ is an alias to /src
 import dmtContract from '@/../build/contracts/DMTWiFiBox.json'
 import Web3 from 'web3'
+import ipUtils from 'ip2long'
+import request from 'request'
+
 const DEXON_TESTNET_ID = 238
 
 export default {
@@ -120,9 +123,15 @@ export default {
   },
   methods: {
     getPiInfo () {
-      // how to get current ip address and pi wallet address?
-      this.piaddr = "0x1d8D586164fB77d08b5A044D7850c29a426564dB"; // test only
-      this.ipaddr = "111"; // test only
+      console.log('getPiInfo()');    
+      request('http://localhost:3000/ipaddr', function (error, response, body) {
+        console.log('error:', error); // Print the error if one occurred
+        console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+        console.log('body:', body); // Print the HTML for the Google homepage.
+        this.piaddr = "0x1d8D586164fB77d08b5A044D7850c29a426564dB"; // test only
+        this.ipaddr = ipUtils.ip2long("127.0.0.1"); // test only
+      });
+      
     },
     online: function () {
       this.getPiInfo()

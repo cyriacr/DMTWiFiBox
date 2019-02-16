@@ -7,6 +7,8 @@ import './registerServiceWorker'
 import i18n from './i18n'
 
 Vue.config.productionTip = false
+// Vue.http.headers.common['Access-Control-Allow-Origin'] = 'http://localhost:3000'
+// Vue.http.headers.common['Access-Control-Request-Method'] = '*'/ipaddr
 
 new Vue({
   router,
