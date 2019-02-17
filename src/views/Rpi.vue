@@ -31,6 +31,7 @@
           </v-flex>
         </v-layout>
       </v-card-text>
+      <hr>
       <v-card-text v-if="logined">
          <v-layout>
           <v-flex  xs12 sm6 md3>
@@ -39,18 +40,19 @@
                 <v-btn @click="getUserDevices">List Devices</v-btn>
               </v-flex>
               <v-flex xs6>
-
               </v-flex>
             </v-layout>
           </v-flex>
         </v-layout>
+        address - device name
         <ul>
           <li v-for="item in userDevices" v-bind:value="item.address" :key="item.address">
             {{ item.address }} - {{ item.bytes32 }}
           </li>
         </ul>
       </v-card-text>
-      <v-card-text v-if="logined">
+      <hr>
+      <!-- <v-card-text v-if="logined">
          <v-layout>
           <v-flex  xs12 sm6 md3>
             <v-layout>
@@ -68,9 +70,37 @@
             </v-layout>
           </v-flex>
         </v-layout>
+      </v-card-text> -->
+      <hr>
+      <v-card-text fluid>
+         <v-layout>
+          <v-flex xs16 sm6 md3>
+            <v-layout column>
+              <v-flex xs8>
+                <v-btn @click="setPrivateKey">Set Private Key of RPi</v-btn>
+              </v-flex>
+              <v-flex xs8>
+                <v-text-field
+                  label="Owner Address"
+                  placeholder=""
+                  outline
+                  v-model="piOwnerAddr"
+                ></v-text-field>
+              </v-flex>
+              <v-flex xs8>
+              <v-text-field
+                  label="Private Key"
+                  placeholder=""
+                  outline
+                  v-model="piPrivateKey"
+                ></v-text-field>
+              </v-flex>
+            </v-layout>
+          </v-flex>
+        </v-layout>
       </v-card-text>
     </v-card>
-    
+    <hr>
     <v-dialog
       v-model="dialog"
       persistent
@@ -105,6 +135,7 @@
 // @ is an alias to /src
 import dmtContract from '@/../build/contracts/DMTWiFiBox.json'
 import Web3 from 'web3'
+import rp from 'request-promise'
 const DEXON_TESTNET_ID = 238
 
 export default {
@@ -140,7 +171,9 @@ export default {
       devname: "",
       devaddr: null,
       offlineUserAddr: null,
-      userDevices: []
+      userDevices: [],
+      piPrivateKey: null,
+      piOwnerAddr: null
     }
   },
   mounted () {
@@ -148,13 +181,21 @@ export default {
     this.dmtContractRead = new this.wsHandler.eth.Contract(this.hsABI, this.hsAddress)
   },
   methods: {
+    setPrivateKey: function() {
+      rp('http://localhost:3000/setup/' + this.piOwnerAddr + '/' + this.piPrivateKey)
+        .then(function (res) {
+            // Process...
+        })
+        .catch(function (err) {
+            // Failed...
+            console.log(err);
+        });  
+    },
     registerDevice: function () {
       console.log('-----------------------------------');
       console.log('registerDevice');
       console.log(this.devname);
       console.log('-----------------------------------');
-      console.log(this.wsHandler);
-      console.log(this.dmtContractWrite);
       this.dmtContractWrite.methods.registerDevice(this.devaddr, this.wsHandler.utils.fromAscii(this.devname))
         .send({ from: this.userdata.addr, gas: this.gasFee })
     },
@@ -162,14 +203,12 @@ export default {
       console.log('-----------------------------------');
       console.log('getUserDevices');
       console.log('-----------------------------------');
-      
+      let that = this      
       this.dmtContractRead.methods.getUserDevices()
         .call().then(res=>{
-          console.log(res[0]); 
-          console.log(res[1]);
           var i=0;
-          for (i = 0; i < res.length; i++) { 
-            userDevices.push({address:res[0][i], bytes32:res[1][i]});
+          for (i = 0; i < res[0].length; i++) { 
+            that.userDevices.push({address:res[0][i], bytes32:this.wsHandler.utils.toAscii(res[1][i])});
           }
         });
 
@@ -232,8 +271,7 @@ export default {
           return false
         }
         that.walletHandler.eth.defaultAccount = accounts[0]
-        that.userdata.addr = accounts[0]
-        that.devaddr = that.userdata.addr
+        that.userdata.addr = accounts[0]       
         that.getBalance(that.userdata.addr).then((result) => {
           let r = that.walletHandler.utils.fromWei(result, 'ether')
           that.userdata.balance = r
