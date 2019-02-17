@@ -31,14 +31,44 @@ npm run migrate:testnet
 npm run serve
 ```
 
-### start IoTservice for localhost
+### IoTservice API explains
+```
+# usage
+curl http://127.0.0.1:3000/
+#
+# returns {status: true, usage: 'usage text...'}
+
+# get your ip address and Pi's wallet address
+curl http://127.0.0.1:3000/ipaddr
+#
+# returns {status:true|false,ipaddr: 'your ip address', piaddr: 'wallet address of Pi'}
+
+# Pi setup with owner's wallet address, and a different private key for Pi
+curl http://127.0.0.1:3000/setup/:ownerWallet/:piPrivateKey
+#
+# returns {status:true|false, error: 'error message if any'}
+
+# notify IoTservice to call userOffline function
+curl http://127.0.0.1:3000/offline/:ipaddr
+#
+# returns {status: true|false, error: 'error message if any'}
+```
+
+### *for developer* start IoTservice for localhost
 Copy settings.json.example to settings.json
 
 ```
 npm run iotservice:dev
 ```
 
-### start IotService for testnet
+### *for developer* start IotService for testnet
 ```
 npm run iotservice:testnet
+```
+
+### start IoTService on Pi
+copy nodejs/ to Pi
+```
+npm install
+node IoTservice.js
 ```
