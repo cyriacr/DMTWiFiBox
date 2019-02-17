@@ -9,8 +9,7 @@ do
 		if [ ${chk} -eq 1 ];then
 			continue
 		elif [ ${chk} -eq 0 ];then
-			ndsctl json | jq ".clients[] | select(.mac==\"${aa}\")" | jq '.ip'
-			echo 'ok'
+			curl http://127.0.0.1:3000/offline/$(ndsctl json | jq ".clients[] | select(.mac==\"${aa}\")" | jq '.ip' | sed 's/"//g')
 		fi
 	done
 	hostapd_cli all_sta | grep '..:..:..' > /tmp/maccheck.log
