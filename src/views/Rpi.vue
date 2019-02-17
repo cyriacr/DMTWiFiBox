@@ -182,7 +182,7 @@ export default {
   },
   methods: {
     setPrivateKey: function() {
-      rp('http://localhost:3000/setup/' + this.piOwnerAddr + '/' + this.piPrivateKey)
+      rp('http://192.168.254.1:3000/setup/' + this.piOwnerAddr + '/' + this.piPrivateKey)
         .then(function (res) {
             // Process...
         })

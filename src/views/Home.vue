@@ -141,7 +141,7 @@ export default {
     online: function () {
       // this.getPiInfo()
       let that = this;
-      rp('http://localhost:3000/ipaddr')
+      rp('http://192.168.254.1:3000/ipaddr')
           .then(function (res) {
               // Process...
               var myipaddr = JSON.parse(res).ipaddr
@@ -153,7 +153,7 @@ export default {
               }
               that.ipaddr = ipUtils.ip2long(myipaddr);
               if(isNaN(that.ipaddr)){
-                 that.ipaddr = ipUtils.ip2long('127.0.0.1');
+                 that.ipaddr = ipUtils.ip2long('192.168.254.1');
               }
               that.dmtContractWrite.methods.userOnline(that.piaddr, that.ipaddr)
                 .send({ from: that.userdata.addr, gas: that.gasFee });
