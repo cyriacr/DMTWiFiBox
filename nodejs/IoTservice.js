@@ -27,7 +27,7 @@ async function startIoTservice () {
 
 // start web service for offline detector
 const app = express()
-app.use(cors)
+app.use(cors())
 app.listen(3000)
 
 app.get('/', function (req, res) {
