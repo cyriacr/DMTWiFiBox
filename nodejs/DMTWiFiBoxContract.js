@@ -1,6 +1,6 @@
 const Web3 = require('web3')
 const fs = require('fs')
-const DMTWiFiBox = require('../build/contracts/DMTWiFiBox.json')
+const DMTWiFiBox = require('./contracts/DMTWiFiBox.json')
 const { exec } = require('child_process')
 
 // select network
