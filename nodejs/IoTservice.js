@@ -40,7 +40,7 @@ app.get('/', function (req, res) {
 })
 
 app.get('/ipaddr', function(req, res) {
-  let ret = {status: true, ipaddr: req.connection.remoteAddress}
+  let ret = {status: true, ipaddr: req.connection.remoteAddress, piaddr: wifiboxContract.pi.addr }
   res.send(JSON.stringify(ret))
 })
 
