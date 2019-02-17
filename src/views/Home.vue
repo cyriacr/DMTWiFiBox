@@ -177,8 +177,7 @@ export default {
       });
     },
     deposit: function () {
-      var etherAmount = this.wsHandler.utils.toBN(this.amountDeposit);
-      var weiValue = this.wsHandler.utils.toWei(etherAmount,'ether');
+      var weiValue = this.wsHandler.utils.toWei(this.amountDeposit,'ether');
       this.dmtContractWrite.methods.increaseCredit(this.depositUserAddress)
         .send({ from: this.userdata.addr, gas: this.gasFee, value: weiValue }, function(err, res){ })
     },
