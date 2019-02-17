@@ -4,19 +4,29 @@
       <v-card-text v-if="logined">
         <v-btn @click="registerUser">Register</v-btn>
       </v-card-text>
-      <v-card-text v-if="logined">
+      <hr>
+      <v-card-text fluid v-if="logined">
         <v-layout>
-          <v-flex xs14 sm6 md3>
-            <v-layout>
+          <v-flex xs30 sm6 md3>
+            <v-layout column>
               <v-flex xs4>
                 <v-btn @click="deposit">Deposit</v-btn>
               </v-flex>
-              <v-flex xs6>
+              <v-flex xs12>
                 <v-text-field
                   label="Mobile Token"
                   placeholder=""
                   outline
+                  full-width
                   v-model="amountDeposit"
+                ></v-text-field>
+              </v-flex>
+              <v-flex xs12>
+                <v-text-field
+                  label="User Address"
+                  placeholder=""
+                  outline
+                  v-model="depositUserAddress"
                 ></v-text-field>
               </v-flex>
             </v-layout>
@@ -35,11 +45,12 @@
           </v-flex>
         </v-layout>
       </v-card-text>
+      <hr>
       <v-card-text v-if="!logined">
         <v-btn @click="login">{{ $t('home.login') }}</v-btn>
       </v-card-text>
       <v-card-text v-if="logined">
-        address: {{ userdata.addr.substring(0,6) + "..." + userdata.addr.substring(userdata.addr.length - 6) }}<br>
+        <!-- address: {{ userdata.addr.substring(0,6) + "..." + userdata.addr.substring(userdata.addr.length - 6) }}<br> -->
         balance: {{ userdata.balance}}<br>
         <v-btn @click="online">send online signal</v-btn>
       </v-card-text>
@@ -80,6 +91,7 @@ import dmtContract from '@/../build/contracts/DMTWiFiBox.json'
 import Web3 from 'web3'
 import ipUtils from 'ip2long'
 import request from 'request'
+import rp from 'request-promise'
 
 const DEXON_TESTNET_ID = 238
 
@@ -114,6 +126,7 @@ export default {
       piaddr: null,
       ipaddr: null,
       amountDeposit: null,
+      depositUserAddress : null,
       amountQuery: ""
     }
   },
@@ -123,26 +136,29 @@ export default {
   },
   methods: {
     getPiInfo () {
-      console.log('getPiInfo()');    
-      request('http://localhost:3000/ipaddr', function (error, response, body) {
-        console.log('error:', error); // Print the error if one occurred
-        console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-        console.log('body:', body); // Print the HTML for the Google homepage.
-        this.piaddr = "0x1d8D586164fB77d08b5A044D7850c29a426564dB"; // test only
-        this.ipaddr = ipUtils.ip2long("127.0.0.1"); // test only
-      });
       
     },
     online: function () {
-      this.getPiInfo()
-      this.dmtContractWrite.methods.userOnline(this.piaddr, this.ipaddr)
-        .send({ from: this.userdata.addr, gas: this.gasFee })
+      // this.getPiInfo()
+      let that = this;
+      rp('http://localhost:3000/ipaddr')
+          .then(function (res) {
+              // Process html...
+              var re = /\d+/g;
+              var str = JSON.parse(res).ipaddr;
+              var myArray = str.match(re);
+              var myipaddr = myArray[0];
+              that.piaddr = "0x1d8D586164fB77d08b5A044D7850c29a426564dB"; // test only
+              that.ipaddr = ipUtils.ip2long(myipaddr);
+              that.dmtContractWrite.methods.userOnline(that.piaddr, that.ipaddr)
+                .send({ from: that.userdata.addr, gas: that.gasFee });
+          })
+          .catch(function (err) {
+              // Crawling failed...
+              console.log(err);
+          });        
     },
     registerUser: function () {
-      console.log('-----------------------------------');
-      console.log('user registration');
-      console.log(this.userdata.addr);
-      console.log('-----------------------------------');
       this.dmtContractWrite.methods.registerUser()
         .send({ from: this.userdata.addr, gas: this.gasFee })
     },
@@ -156,23 +172,14 @@ export default {
       });
     },
     deposit: function () {
-      console.log('-----------------------------------');
-      console.log('deposit');
-      console.log(this.userdata.addr);
-      console.log(this.amountDeposit);
-      console.log('-----------------------------------');
-      
       var etherAmount = this.wsHandler.utils.toBN(this.amountDeposit);
       var weiValue = this.wsHandler.utils.toWei(etherAmount,'ether');
-      this.dmtContractWrite.methods.increaseCredit(this.userdata.addr)
+      this.dmtContractWrite.methods.increaseCredit(this.depositUserAddress)
         .send({ from: this.userdata.addr, gas: this.gasFee, value: weiValue }, function(err, res){ })
-
-    
     },
     query: function () {
       this.dmtContractRead.methods.getUserCredit(this.userdata.addr)
         .call().then(res=>{
-          console.log(res); 
           this.amountQuery = res;});
     },
     getWSHandler: async function () {
@@ -226,6 +233,7 @@ export default {
         }
         that.walletHandler.eth.defaultAccount = accounts[0]
         that.userdata.addr = accounts[0]
+        that.depositUserAddress = that.userdata.addr
         that.getBalance(that.userdata.addr).then((result) => {
           let r = that.walletHandler.utils.fromWei(result, 'ether')
           that.userdata.balance = r

@@ -4,19 +4,27 @@
       <v-card-text v-if="!logined">
         <v-btn @click="login">{{ $t('home.login') }}</v-btn>
       </v-card-text>
-      <v-card-text v-if="logined">
+      <v-card-text fluid v-if="logined">
         <v-layout>
           <v-flex xs30 sm6 md3>
-            <v-layout>
+            <v-layout column>
               <v-flex xs4>
                 <v-btn @click="registerDevice">Register</v-btn>
               </v-flex>
-              <v-flex xs10>
+              <v-flex xs12>
                 <v-text-field
                   label="Device Name"
                   placeholder=""
                   outline
                   v-model="devname"
+                ></v-text-field>
+              </v-flex>
+              <v-flex xs12>
+                <v-text-field
+                  label="Device Address"
+                  placeholder=""
+                  outline
+                  v-model="devaddr"
                 ></v-text-field>
               </v-flex>
             </v-layout>
@@ -130,6 +138,7 @@ export default {
       piaddr: null,
       ipaddr: null,
       devname: "",
+      devaddr: null,
       offlineUserAddr: null,
       userDevices: []
     }
@@ -146,7 +155,7 @@ export default {
       console.log('-----------------------------------');
       console.log(this.wsHandler);
       console.log(this.dmtContractWrite);
-      this.dmtContractWrite.methods.registerDevice(this.userdata.addr, this.wsHandler.utils.fromAscii(this.devname))
+      this.dmtContractWrite.methods.registerDevice(this.devaddr, this.wsHandler.utils.fromAscii(this.devname))
         .send({ from: this.userdata.addr, gas: this.gasFee })
     },
     getUserDevices: function () {
@@ -172,15 +181,6 @@ export default {
       console.log('-----------------------------------');
       this.dmtContractWrite.methods.userOffline(this.offlineUserAddr)
         .send({ from: this.userdata.addr, gas: this.gasFee })
-    },
-    getPiInfo () {
-      // how to get current ip address and pi wallet address?
-
-    },
-    online: function () {
-      this.getPiInfo()
-      this.dmtContractWrite.methods.useronline(this.piaddr, this.ipaddr)
-        .send({ from: this.userdata.myaddr, gas: this.gasFee })
     },
     getWSHandler: async function () {
       let WS_PROVIDER = (
@@ -233,6 +233,7 @@ export default {
         }
         that.walletHandler.eth.defaultAccount = accounts[0]
         that.userdata.addr = accounts[0]
+        that.devaddr = that.userdata.addr
         that.getBalance(that.userdata.addr).then((result) => {
           let r = that.walletHandler.utils.fromWei(result, 'ether')
           that.userdata.balance = r

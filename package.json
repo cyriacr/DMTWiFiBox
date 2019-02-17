@@ -20,6 +20,7 @@
     "express": "^4.16.4",
     "fs": "0.0.1-security",
     "register-service-worker": "^1.5.2",
+    "request-promise": "^4.2.4",
     "vue": "^2.5.21",
     "vue-i18n": "^8.0.0",
     "vue-router": "^3.0.1",
