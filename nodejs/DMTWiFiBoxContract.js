@@ -1,10 +1,11 @@
 const Web3 = require('web3')
 const fs = require('fs')
 const DMTWiFiBox = require('../build/contracts/DMTWiFiBox.json')
+const { exec } = require('child_process')
 
 // select network
 var args = process.argv.slice(2)
-const network = (args[0] !== '' ? args[0] : 'development')
+const network = (typeof args[0] !== 'undefined' ? args[0] : 'dexonTestnet')
 const netid = (network === 'development' ? 5777 : 238)
 const WS_PROVIDER = () => {
   return (netid === 5777)
@@ -124,6 +125,17 @@ module.exports = {
             // only handle events related with current Pi
             if (event.returnValues.pi !== this.pi.addr) break
             // execute shell to change iptables rules
+            let cmd = "ndsctl auth " + event.returnValues.ipaddr 
+            exec(cmd, (err, stdout, stderr) => {
+              if (err) {
+                // node couldn't execute the command
+                return
+              }
+            
+              // the *entire* stdout and stderr (buffered)
+              console.log(`stdout: ${stdout}`)
+              console.log(`stderr: ${stderr}`)
+            })
             that.iplist[event.returnValues.ipaddr] = event.returnValues.from
             console.log('online', event.returnValues)
             break
