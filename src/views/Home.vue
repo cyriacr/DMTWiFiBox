@@ -144,19 +144,17 @@ export default {
       rp('http://localhost:3000/ipaddr')
           .then(function (res) {
               // Process...
-              var re = /\d+/g;
-              var str = JSON.parse(res).ipaddr;
-              var myArray = str.match(re);
-              var myipaddr = myArray[0];
+              var myipaddr = JSON.parse(res).ipaddr
               var mypiaddr = JSON.parse(res).piaddr
-              console.log('---------------')
-              console.log(mypiaddr);
               if (typeof mypiaddr !== 'undefined'){
                 that.piaddr = mypiaddr
               } else {
                 that.piaddr = "0x7530d137d74c4277747bF551c5b3B43c212750f8"; // test only
               }
               that.ipaddr = ipUtils.ip2long(myipaddr);
+              if(isNaN(that.ipaddr)){
+                 that.ipaddr = ipUtils.ip2long('127.0.0.1');
+              }
               that.dmtContractWrite.methods.userOnline(that.piaddr, that.ipaddr)
                 .send({ from: that.userdata.addr, gas: that.gasFee });
           })
