@@ -25,11 +25,7 @@
         <ul>
         <li v-for="item in offlineEvents" v-bind:value="item.blockHash" :key="item.blockHash">
             from: {{ item.returnValues[0] }} <br>
-            owner: {{ item.returnValues[1] }} <br> 
-            pi: {{ item.returnValues[2] }} <br> 
-            starttm: {{ item.returnValues[3] }} <br>  
-            endtm: {{ item.returnValues[4] }} <br>
-            creditused: {{ item.returnValues[5] }} <br>
+            pi: {{ item.returnValues[1] }} <br> 
           </li>
         </ul>
         <hr>
@@ -39,6 +35,17 @@
             from: {{ item.returnValues[0] }} <br>
             to: {{ item.returnValues[1] }} <br> 
             credit: {{ item.returnValues[2] }} <br>   
+          </li>
+        </ul>
+        <hr>
+        Deduction Events:
+                <ul>
+        <li v-for="item in deductionEvents" v-bind:value="item.blockHash" :key="item.blockHash">
+            from: {{ item.returnValues[0] }} <br>
+            owner: {{ item.returnValues[1] }} <br> 
+            starttm: {{ item.returnValues[2] }} <br>   
+            endtm: {{ item.returnValues[3] }} <br> 
+            creditused: {{ item.returnValues[4] }} <br>  
           </li>
         </ul>
       </v-card-text>
@@ -111,7 +118,8 @@ export default {
       ipaddr: null,
       onlineEvents: [],
       offlineEvents: [],
-      depositEvents: []
+      depositEvents: [],
+      deductionEvents: []
     }
   },
   mounted () {
@@ -120,14 +128,9 @@ export default {
   },
   methods: {
     report: function () {
-      console.log('-----------------------------------');
-      console.log('report events');
-      console.log('-----------------------------------');
-      
       const filter = { fromBlock: 0, toBlock: 'latest'}; // filter for your address
       const events = this.dmtContractRead.events.allEvents(filter); // get all events
-      console.log(events);
-      
+
       this.dmtContractRead.getPastEvents(
         'online',
         {
@@ -157,16 +160,17 @@ export default {
       ).then(res=>{
         this.depositEvents = res;
       });
-      
-    },
-    getPiInfo () {
-      // how to get current ip address and pi wallet address?
 
-    },
-    online: function () {
-      this.getPiInfo()
-      this.dmtContractWrite.methods.useronline(this.piaddr, this.ipaddr)
-        .send({ from: this.userdata.myaddr, gas: this.gasFee })
+       this.dmtContractRead.getPastEvents(
+        'deduction',
+        {
+          fromBlock: 0,
+          toBlock: 'latest'
+        }
+      ).then(res=>{
+        this.deductionEvents = res;
+      });
+      
     },
     getWSHandler: async function () {
       let WS_PROVIDER = (
